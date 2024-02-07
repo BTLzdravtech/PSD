@@ -937,7 +937,7 @@ Function Invoke-PSDWizard {
 
         $Global:OSSupportedLanguages = @(($Global:OperatingSystemList | Where-Object Guid -eq $TSAssignedOSGUID).Language)
         #Get only available locales settings from Select OS
-        $Global:LanguageList = $Global:PSDWizardLocales | Where-Object-Object {$_.Culture -in $Global:OSSupportedLanguages} | Select-Object -Unique
+        $Global:LanguageList = $Global:PSDWizardLocales | Where-Object {$_.Culture -in $Global:OSSupportedLanguages} | Select-Object -Unique
     }
     #endregion
 
@@ -1514,7 +1514,7 @@ Function Invoke-PSDWizard {
                         {
                             Invoke-PSDWizardNotification -OutputObject $_tsTabValidation -Type Hide
                             #find the language name in full langauge object list
-                            $Global:OSSupportedLanguages = @(($Global:OperatingSystemList | Where-Object-Object Guid -eq $TSAssignedOSGUID).Language)
+                            $Global:OSSupportedLanguages = @(($Global:OperatingSystemList | Where-Object Guid -eq $TSAssignedOSGUID).Language)
                             #Get only available locales settings from Select OS
                             $Global:LanguageList = $Global:PSDWizardLocales | Where-Object {$_.Culture -in $Global:OSSupportedLanguages}
                             #set button to enable

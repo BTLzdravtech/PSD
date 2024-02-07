@@ -521,7 +521,7 @@ function Switch-PSDWizardTabItem {
     }
 
     If ($PSCmdlet.ParameterSetName -eq "header") {
-        $newtab = $TabControlObject.items | Where-Object-Object Header -eq $header
+        $newtab = $TabControlObject.items | Where-Object Header -eq $header
         $newtab.IsSelected = $true
 
         $message = ("Selected tab header [{0}] with name of [{1}]" -f $newtab.Header, $newtab.Name)
