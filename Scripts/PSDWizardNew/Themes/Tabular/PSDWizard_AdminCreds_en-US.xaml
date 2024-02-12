@@ -30,7 +30,7 @@
 
     <Label x:Name="_admOSDAddAdminText" Content="Administrator user accounts" FontSize="18" HorizontalAlignment="Left" Margin="501,82,0,0" VerticalAlignment="Top" Width="466"/>
     <Label x:Name="_admOSDAddAdminLabel" Content="Admin Accounts(s)" HorizontalAlignment="Right" FontSize="14" Margin="0,121,354,195" Width="126" HorizontalContentAlignment="Right"/>
-    <TextBox x:Name="TS_OSDAddAdmin" Margin="665,120,23,197" FontSize="14" FontWeight="Bold" TextWrapping="NoWrap" VerticalContentAlignment="Center" IsEnabled="False"/>
+    <TextBox x:Name="TS_OSDAddAdmin" Margin="665,120,23,197" FontSize="14" FontWeight="Bold" TextWrapping="NoWrap" VerticalContentAlignment="Center" IsEnabled="True"/>
 
     <Label Content="More Info" FontSize="14" HorizontalAlignment="Right" Margin="0,259,916,0" VerticalAlignment="Top" Foreground="LightSlateGray" Width="88" HorizontalContentAlignment="Right" />
     <TextBlock x:Name="_admTabMoreInfo"  HorizontalAlignment="Left" Margin="117,266,0,0" Width="675" TextWrapping="Wrap" VerticalAlignment="Top" Height="72">

@@ -554,6 +554,10 @@ function Export-PSDWizardResult {
                 $value = $AppGuids
                 #Set-PSDWizardTSItem $name -Value $value
             }
+            elseif ($name -eq 'OSDAddAdmin') {
+                $value = $control.Text
+                If ($value) { Set-PSDWizardTSItem 'Administrators001' -Value $value }
+            }
             elseif ($name -eq 'Summary') {
                 # Do nothing
             }
@@ -1711,7 +1715,7 @@ Function Invoke-PSDWizard {
                 '_wizAdminAccount' {
                     #RUN EVENTS ON PAGE LOAD
                     #currently for version 2.2.2b+ hide the ability to add additional local admin accounts
-                    Get-PSDWizardElement -Name "OSDAddAdmin" -wildcard | Set-PSDWizardElement -Visible:$False
+                    Get-PSDWizardElement -Name "OSDAddAdmin" -wildcard | Set-PSDWizardElement -Visible:$True
 
                     #check if confirm password has value
                     If ( -Not[string]::IsNullOrEmpty($TS_AdminPassword.Password)) {
