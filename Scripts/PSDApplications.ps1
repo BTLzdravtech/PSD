@@ -220,7 +220,7 @@ $toolRoot = Get-PSDContent "Tools\$($tsenv:Architecture)"
 
 
 # Single application install initiated by a Task Sequence action
-# Note: The ApplicationGUID variable isn’t set globally. It’s set only within the scope of the Install Application action/step. One of the hidden mysteries of the task sequence engine :)
+# Note: The ApplicationGUID variable isn't set globally. It's set only within the scope of the Install Application action/step. One of the hidden mysteries of the task sequence engine :)
 
 Write-PSDLog -Message "$($MyInvocation.MyCommand.Name): Checking for single application install step"
 If ($tsenv:ApplicationGUID -ne "") {

@@ -554,10 +554,6 @@ function Export-PSDWizardResult {
                 $value = $AppGuids
                 #Set-PSDWizardTSItem $name -Value $value
             }
-            elseif ($name -eq 'OSDAddAdmin') {
-                $value = $control.Text
-                If ($value) { Set-PSDWizardTSItem 'Administrators001' -Value $value }
-            }
             elseif ($name -eq 'Summary') {
                 # Do nothing
             }
@@ -799,6 +795,7 @@ Function Invoke-PSDWizard {
     $Global:TSKeyboardLocale = Get-PSDWizardTSItem 'KeyboardLocale' -ValueOnly
     $Global:TSInputLocale = Get-PSDWizardTSItem 'InputLocale' -ValueOnly
     $Global:TSTimeZoneName = Get-PSDWizardTSItem 'TimeZoneName' -ValueOnly
+    $Global:TSMachineObjectOU = Get-PSDWizardTSItem 'DomainOUs' -WildCard
 
     #Grab all timezones and locales
     $Global:PSDWizardLocales = Get-PSDWizardLocale -Path $ScriptPath -FileName 'PSDListOfLanguages.xml'
@@ -909,6 +906,21 @@ Function Invoke-PSDWizard {
         #$MappedTimeZone = $Global:PSDWizardTimeZoneIndex | Where TimeZone -eq $TimeZoneName.TimeZone | Select -first 1
         $TS_TimeZoneName.Text = (Set-PSDWizardTSItem -Name TimeZoneName -Value $MappedTimeZone.DisplayName -PassThru).Value
         $TS_TimeZone.Text = (Set-PSDWizardTSItem -Name TimeZone -Value ('{0:d3}' -f [int]$MappedTimeZone.id).ToString() -PassThru).Value
+    }
+
+    If ($TS_MachineObjectOU) {
+        #add the entire list of DomainOUs
+        If ($_deviceTabDomainOUs.GetType().Name -eq 'ComboBox') {
+            Add-PSDWizardComboList -InputObject $Global:TSMachineObjectOU -ListObject $_deviceTabDomainOUs -Identifier 'Value' -PreSelect $null
+        }
+        If ($_deviceTabDomainOUs.GetType().Name -eq 'ListBox') {
+            Add-PSDWizardList -InputObject $Global:TSMachineObjectOU -ListObject $_deviceTabDomainOUs -Identifier 'Value' -PreSelect $null
+        }
+        #Map the select item from list to format TS understands
+        # $MappedLocale = (ConvertTo-PSDWizardTSVar -Object $Global:PSDWizardLocales -InputValue $SystemLocale.Name -MappedProperty 'Name' -SelectedProperty 'Culture' -DefaultValueOnNull $SystemLocale.Culture)
+        # #$MappedLocale = ($Global:PSDWizardLocales | Where Name -eq $SystemLocale.Name) | Select -ExpandProperty Culture
+        # $TS_SystemLocale.Text = (Set-PSDWizardTSItem -Name SystemLocale -Value $MappedLocale -PassThru).Value
+        # $TS_UserLocale.Text = (Set-PSDWizardTSItem -Name UserLocale -Value $MappedLocale -PassThru).Value
     }
     #endregion
 
@@ -1715,7 +1727,7 @@ Function Invoke-PSDWizard {
                 '_wizAdminAccount' {
                     #RUN EVENTS ON PAGE LOAD
                     #currently for version 2.2.2b+ hide the ability to add additional local admin accounts
-                    Get-PSDWizardElement -Name "OSDAddAdmin" -wildcard | Set-PSDWizardElement -Visible:$True
+                    #Get-PSDWizardElement -Name "OSDAddAdmin" -wildcard | Set-PSDWizardElement -Visible:$False
 
                     #check if confirm password has value
                     If ( -Not[string]::IsNullOrEmpty($TS_AdminPassword.Password)) {
