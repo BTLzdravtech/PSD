@@ -795,7 +795,6 @@ Function Invoke-PSDWizard {
     $Global:TSKeyboardLocale = Get-PSDWizardTSItem 'KeyboardLocale' -ValueOnly
     $Global:TSInputLocale = Get-PSDWizardTSItem 'InputLocale' -ValueOnly
     $Global:TSTimeZoneName = Get-PSDWizardTSItem 'TimeZoneName' -ValueOnly
-    $Global:TSMachineObjectOU = Get-PSDWizardTSItem 'DomainOUs' -WildCard
 
     #Grab all timezones and locales
     $Global:PSDWizardLocales = Get-PSDWizardLocale -Path $ScriptPath -FileName 'PSDListOfLanguages.xml'
@@ -806,6 +805,8 @@ Function Invoke-PSDWizard {
     #get the defaults for timezone and locale
     $Global:DefaultLocaleObject = $Global:PSDWizardLocales | Where-Object {$_.Culture -eq $DefaultLocale}
     $Global:DefaultTimeZoneObject = $Global:PSDWizardTimeZoneIndex | Where-Object { $_.DisplayName -eq $DefaultTimeZone }
+
+    $Global:PSDDomainOUs = Get-PSDWizardDomainOUsList -Path $ScriptPath -FileName 'PSDDomainOUs.xml'
 
     #The display name is different than the actual variable value. (eg. English (United States) --> en-US)
     # first get the current value and convert it to an object the list will compare
@@ -908,19 +909,14 @@ Function Invoke-PSDWizard {
         $TS_TimeZone.Text = (Set-PSDWizardTSItem -Name TimeZone -Value ('{0:d3}' -f [int]$MappedTimeZone.id).ToString() -PassThru).Value
     }
 
-    If ($TS_MachineObjectOU) {
+    If ($TS_MachineObjectOU -and $Global:PSDDomainOUs -ne $null) {
         #add the entire list of DomainOUs
         If ($_deviceTabDomainOUs.GetType().Name -eq 'ComboBox') {
-            Add-PSDWizardComboList -InputObject $Global:TSMachineObjectOU -ListObject $_deviceTabDomainOUs -Identifier 'Value' -PreSelect $null
+            Add-PSDWizardComboList -InputObject $Global:PSDDomainOUs -ListObject $_deviceTabDomainOUs -Identifier 'FriendlyName' -PreSelect $null
         }
         If ($_deviceTabDomainOUs.GetType().Name -eq 'ListBox') {
-            Add-PSDWizardList -InputObject $Global:TSMachineObjectOU -ListObject $_deviceTabDomainOUs -Identifier 'Value' -PreSelect $null
+            Add-PSDWizardList -InputObject $Global:PSDDomainOUs -ListObject $_deviceTabDomainOUs -Identifier 'FriendlyName' -PreSelect $null
         }
-        #Map the select item from list to format TS understands
-        # $MappedLocale = (ConvertTo-PSDWizardTSVar -Object $Global:PSDWizardLocales -InputValue $SystemLocale.Name -MappedProperty 'Name' -SelectedProperty 'Culture' -DefaultValueOnNull $SystemLocale.Culture)
-        # #$MappedLocale = ($Global:PSDWizardLocales | Where Name -eq $SystemLocale.Name) | Select -ExpandProperty Culture
-        # $TS_SystemLocale.Text = (Set-PSDWizardTSItem -Name SystemLocale -Value $MappedLocale -PassThru).Value
-        # $TS_UserLocale.Text = (Set-PSDWizardTSItem -Name UserLocale -Value $MappedLocale -PassThru).Value
     }
     #endregion
 
@@ -992,6 +988,12 @@ Function Invoke-PSDWizard {
     Get-PSDWizardElement -Name "TS_TimeZoneName" | Set-PSDWizardElement -Visible:$PSDDeBug
     Get-PSDWizardElement -Name "TS_TimeZone" | Set-PSDWizardElement -Visible:$PSDDeBug
     Get-PSDWizardElement -Name "TS_TaskSequenceID" | Set-PSDWizardElement -Visible:$PSDDeBug
+    Get-PSDWizardElement -Name "TS_MachineObjectOU" | Set-PSDWizardElement -Visible:$PSDDeBug
+
+    if($PSDDebug -eq $false)
+    {
+        [System.Windows.Controls.Grid]::SetColumnSpan((Get-PSDWizardElement -Name "_deviceTabDomainOUs"), 2)
+    }
 
     If('_wizTaskSequence' -in $_wizTabControl.items.Name ){
         #PROCESS ON PAGE LOAD
@@ -1249,6 +1251,16 @@ Function Invoke-PSDWizard {
         Else {
             $_wizNext.IsEnabled = (Confirm-PSDWizardWorkgroup -WorkgroupNameObject $TS_JoinWorkgroup -OutputObject $_detTabValidation2 -Passthru)
         }
+    }
+
+    #Event for domain OU selection
+    [System.Windows.RoutedEventHandler]$Script:OnDomainOUSelection = {
+        If($Global:DomainOUSelected -ne $this.SelectedItem){
+            $MappedDomainOU = (ConvertTo-PSDWizardTSVar -Object $Global:PSDDomainOUs -InputValue $this.SelectedItem -MappedProperty 'FriendlyName' -SelectedProperty 'OU')
+            $TS_MachineObjectOU.Text = (Set-PSDWizardTSItem -Name MachineObjectOU -Value $MappedDomainOU -PassThru).Value
+        }
+        #store value in a global to compare later
+        $Global:DomainOUSelected = $this.SelectedItem
     }
 
     #Event for language install selection
@@ -1620,6 +1632,7 @@ Function Invoke-PSDWizard {
                 '_wizDeviceDetails' {
 
                     $_wizDeviceDetails.AddHandler([System.Windows.Controls.RadioButton]::CheckedEvent, $OnDomainWorkgroupChange)
+                    $_deviceTabDomainOUs.AddHandler([System.Windows.Controls.ComboBox]::SelectionChangedEvent, $OnDomainOUSelection)
 
                     #set focus on computer name;ensures valid name does not get skipped
                     $TS_OSDComputerName.focus()

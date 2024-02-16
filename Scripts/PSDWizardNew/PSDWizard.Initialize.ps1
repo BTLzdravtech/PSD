@@ -208,6 +208,38 @@ Function Get-PSDWizardTSData{
 #endregion
 
 #region FUNCTION:  Get-PSDWizardOSList
+Function Get-PSDWizardDomainOUsList{
+    <#
+    .SYNOPSIS
+        Get domain OUs list from PSDDomainOUs.xml
+    .EXAMPLE
+        Get-PSDWizardDomainOUsList -Path $PSDWizardRoot -FileName 'PSDDomainOUs.xml'
+    #>
+    [CmdletBinding()]
+    Param(
+        $Path = $PSDWizardRoot,
+        $FileName = 'PSDListOfLanguages.xml'
+    )
+    ## Get the name of this function
+    [string]${CmdletName} = $MyInvocation.MyCommand
+
+    $DomainOUsData = @()
+
+    $FilePath = Join-Path $Path -ChildPath $FileName
+
+
+    If (Test-Path $FilePath) {
+        if ($PSDDeBug -eq $true) { Write-PSDLog -Message ("{0}: Grabbing content from [{1}] " -f ${CmdletName}, $FilePath) }
+
+        $DomainOUsData = ([xml](Get-Content $FilePath)).DomainOUs.DomainOU
+
+        Write-PSDLog -Message ("{0}: [{1}] domain OUs found" -f ${CmdletName}, $DomainOUsData.count) -loglevel 1
+    }
+    return $DomainOUsData
+}
+#endregion
+
+#region FUNCTION:  Get-PSDWizardOSList
 Function Get-PSDWizardOSList{
     <#
     .SYNOPSIS
