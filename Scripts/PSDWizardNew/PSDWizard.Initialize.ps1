@@ -924,8 +924,8 @@ function Set-PSDWizardStringLength {
             }
 
             #$Str[0..($Length-1)] -join ""
-            If ($TrimOff -eq 'Left') {
-                [string]$Str.Substring($length + 1)
+            If ($TrimOff -eq 'Right') {
+                [string]$Str.Substring($Str.length - $length)
             }
             Else {
                 [string]$Str.Substring(0, $length)
