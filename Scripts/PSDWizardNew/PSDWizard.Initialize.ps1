@@ -218,7 +218,7 @@ Function Get-PSDWizardDomainOUsList{
     [CmdletBinding()]
     Param(
         $Path = $PSDWizardRoot,
-        $FileName = 'PSDListOfLanguages.xml'
+        $FileName = 'PSDDomainOUs.xml'
     )
     ## Get the name of this function
     [string]${CmdletName} = $MyInvocation.MyCommand
