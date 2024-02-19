@@ -488,7 +488,7 @@ Function Set-PSDWizardTSItem {
 
     If ($PSBoundParameters.ContainsKey('WildCard')) {
         Get-PSDWizardTSItem $Name -WildCard | ForEach-Object {
-             Set-Item -Path TSEnv:$_.Name -Value $Value -Force
+             Set-Item -Path TSEnv:$($_.Name) -Value $Value -Force
              if ($PSDDeBug -eq $true) { Write-PSDLog -Message ("{0}: Set [{1}] to [{2}]" -f ${CmdletName}, $_.Name, $Value) -LogLevel 1 }
         }
     }Else {
@@ -502,6 +502,51 @@ Function Set-PSDWizardTSItem {
         }Else {
             Get-PSDWizardTSItem $Name
         }
+    }
+}
+#endregion
+
+#region FUNCTION: Clear-PSDWizardTSItem
+Function Clear-PSDWizardTSItem {
+    <#
+    .SYNOPSIS
+        Clear Task Sequence variable(s)
+    .EXAMPLE
+        Clear-PSDWizardTSItem 'Skip' -wildcard
+    .EXAMPLE
+        Clear-PSDWizardTSItem -Name 'OSDComputerName'
+    .EXAMPLE
+        Clear-PSDWizardTSItem * -wildcard
+    .LINK
+        Get-PSDWizardTSItem
+    #>
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
+        [string]$Name,
+        [Parameter(Mandatory = $false, ParameterSetName = "wildcard")]
+        [switch]$WildCard,
+        [Parameter(Mandatory = $false, ParameterSetName = "wildcard")]
+        [string]$Exclude,
+        [Parameter(Mandatory = $false, ParameterSetName = "wildcard")]
+        [string]$Identifier
+    )
+    ## Get the name of this function
+    [string]${CmdletName} = $MyInvocation.MyCommand
+
+    If ($PSCmdlet.ParameterSetName -eq "wildcard") {
+        If ($PSBoundParameters.ContainsKey('Exclude')) {
+            [scriptblock]$ExcludeItemFilter = { ($_.$Identifier -NotLike "*$Exclude*") }
+        }
+        If ($PSBoundParameters.ContainsKey('WildCard')) {
+            Get-PSDWizardTSItem $Name -WildCard | Where-Object -FilterScript $ExcludeItemFilter | ForEach-Object {
+                 Set-Item -Path TSEnv:$($_.Name) -Value "" -Force
+                 if ($PSDDeBug -eq $true) { Write-PSDLog -Message ("{0}: Clear [{1}]" -f ${CmdletName}, $_.Name) -LogLevel 1 }
+            }
+        }
+    }Else {
+        if ($PSDDeBug -eq $true) { Write-PSDLog -Message ("{0}: Clear [{1}]" -f ${CmdletName}, $Name) -LogLevel 1 }
+        Set-Item -Path TSEnv:$Name -Value "" -Force
     }
 }
 #endregion
@@ -2179,10 +2224,8 @@ Function Set-PSDWizardSelectedApplications {
     $AllApps += Get-PSDWizardTSChildItem -Path "DeploymentShare:\Applications" -Recurse
 
     $SelectedApps = $FieldObject.SelectedItems
-
-    #Get current applist
-    $CurrentAppList = $InputObject | Where-Object { ($_.Name -notlike 'Skip*') -and ($_.Name -notlike '*Codes') -and -not([string]::IsNullOrEmpty($_.Value)) }
-    #TODO: remove apps from list and rebuild
+    
+    Clear-PSDWizardTSItem -Name 'Applications' -WildCard -Exclude 'SKIPAPPLICATIONS' -Identifier 'Name'
 
     $i = 1
     $SelectedGuids = @()
@@ -2192,13 +2235,7 @@ Function Set-PSDWizardSelectedApplications {
         $AppInfo = $AllApps | Where-Object { $_.Name -eq $App }
         #collect GUIDs (for Passthru output)
         $SelectedGuids += $AppInfo.Guid
-
-        If ($AppInfo.Guid -in $CurrentAppList.Guid) {
-            #TODO: get name to determine what is the next app number?
-        }
-        Else {
-            Set-PSDWizardTSItem ("Applications" + $NumPad) -Value $AppInfo.Guid
-        }
+        Set-PSDWizardTSItem ("Applications" + $NumPad) -Value $AppInfo.Guid
         $i++
     }
 
