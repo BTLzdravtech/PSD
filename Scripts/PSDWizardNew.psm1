@@ -1436,17 +1436,6 @@ Function Invoke-PSDWizard {
             })
 
         $_appTabList.Add_SelectionChanged( {
-            $AllApps = @()
-            $AllApps += Get-PSDWizardTSChildItem -Path "DeploymentShare:\Applications" -Recurse
-            Foreach ($App in $this.Items) {
-                $AppInfo = $AllApps | Where-Object { $_.Name -eq $App }
-                if ((Get-Item TSEnv:*MANDATORYAPPLICATIONS*).Value.contains($AppInfo.Guid)) {
-                    if (!$this.SelectedItems.contains($App)) {
-                        $this.SelectedItems.Add($App)
-                    }
-                }
-            }
-            
             $Apps = @()
             $Apps += $this.SelectedItems -join "`n"
 
