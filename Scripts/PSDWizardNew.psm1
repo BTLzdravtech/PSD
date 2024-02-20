@@ -909,7 +909,7 @@ Function Invoke-PSDWizard {
         $TS_TimeZone.Text = (Set-PSDWizardTSItem -Name TimeZone -Value ('{0:d3}' -f [int]$MappedTimeZone.id).ToString() -PassThru).Value
     }
 
-    If ($TS_MachineObjectOU -and $Global:PSDDomainOUs -ne $null) {
+    If ($TS_JoinDomainOU -and $Global:PSDDomainOUs -ne $null) {
         #add the entire list of DomainOUs
         If ($_deviceTabDomainOUs.GetType().Name -eq 'ComboBox') {
             Add-PSDWizardComboList -InputObject $Global:PSDDomainOUs -ListObject $_deviceTabDomainOUs -Identifier 'FriendlyName' -PreSelect $null
@@ -988,7 +988,7 @@ Function Invoke-PSDWizard {
     Get-PSDWizardElement -Name "TS_TimeZoneName" | Set-PSDWizardElement -Visible:$PSDDeBug
     Get-PSDWizardElement -Name "TS_TimeZone" | Set-PSDWizardElement -Visible:$PSDDeBug
     Get-PSDWizardElement -Name "TS_TaskSequenceID" | Set-PSDWizardElement -Visible:$PSDDeBug
-    Get-PSDWizardElement -Name "TS_MachineObjectOU" | Set-PSDWizardElement -Visible:$PSDDeBug
+    Get-PSDWizardElement -Name "TS_JoinDomainOU" | Set-PSDWizardElement -Visible:$PSDDeBug
 
     if($PSDDebug -eq $false)
     {
@@ -1257,7 +1257,7 @@ Function Invoke-PSDWizard {
     [System.Windows.RoutedEventHandler]$Script:OnDomainOUSelection = {
         If($Global:DomainOUSelected -ne $this.SelectedItem){
             $MappedDomainOU = (ConvertTo-PSDWizardTSVar -Object $Global:PSDDomainOUs -InputValue $this.SelectedItem -MappedProperty 'FriendlyName' -SelectedProperty 'OU')
-            $TS_MachineObjectOU.Text = (Set-PSDWizardTSItem -Name MachineObjectOU -Value $MappedDomainOU -PassThru).Value
+            $TS_JoinDomainOU.Text = (Set-PSDWizardTSItem -Name JoinDomainOU -Value $MappedDomainOU -PassThru).Value
         }
         #store value in a global to compare later
         $Global:DomainOUSelected = $this.SelectedItem

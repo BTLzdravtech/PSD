@@ -54,7 +54,7 @@
                 </Style>
             </ComboBox.Resources>
         </ComboBox>
-        <TextBox Name="TS_MachineObjectOU" Grid.Column="2" Grid.Row="1" Margin="5,0,0,5" IsEnabled="False" />
+        <TextBox Name="TS_JoinDomainOU" Grid.Column="2" Grid.Row="1" Margin="5,0,0,5" IsEnabled="False" />
         <Label Content="Domain Admin:" FontSize="14" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Right"/>
         <TextBox x:Name="TS_DomainAdmin" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" FontSize="14" FontWeight="Bold" TextWrapping="NoWrap" VerticalContentAlignment="Center" Margin="0,35,0,5" Grid.RowSpan="2" Width="287" />
         <Label Content="Password:" FontSize="14" Grid.Column="0" Grid.Row="3" HorizontalAlignment="Right"/>
